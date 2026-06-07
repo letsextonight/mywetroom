@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meet And Have Fun Tonight</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #0d0d0d;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* ===== AGE GATE ===== */
+        #ageGate {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, #1a0000 0%, #0a0000 60%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            text-align: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        #ageGate.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .gate-icon {
+            font-size: 70px;
+            margin-bottom: 20px;
+            animation: pulseIcon 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseIcon {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+
+        .gate-title {
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 900;
+            color: #ff1a1a;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 30px rgba(255, 26, 26, 0.5), 0 0 60px rgba(255, 0, 0, 0.3);
+            max-width: 700px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .gate-sub {
+            color: #ff8888;
+            font-size: clamp(14px, 2.5vw, 18px);
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .btn-yes {
+            background: linear-gradient(180deg, #00e676, #00a152);
+            border: none;
+            border-radius: 60px;
+            padding: 22px 90px;
+            font-size: clamp(24px, 5vw, 40px);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5), 0 8px 25px rgba(0, 0, 0, 0.6);
+            transition: all 0.2s ease;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
+            max-width: 90vw;
+            border: none;
+        }
+
+        .btn-yes::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+            animation: shimmer 3s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-yes:active {
+            transform: scale(0.96);
+        }
+
+        .gate-footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        #mainContent {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 15px 40px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeUp 0.7s ease;
+        }
+
+        #mainContent.show {
+            display: flex;
+        }
+
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== VIDEO ONLY — NO BRANDING, NO WATERMARK ===== */
+        .video-wrapper {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(255, 0, 85, 0.25);
+            margin-bottom: 20px;
+            position: relative;
+            background: #000;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            display: block;
+            aspect-ratio: 1128 / 690;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .video-overlay .play-icon {
+            font-size: 80px;
+            opacity: 0.7;
+            text-shadow: 0 0 40px rgba(0,0,0,0.8);
+            animation: pulsePlay 2s infinite ease-in-out;
+        }
+
+        @keyframes pulsePlay {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        /* ===== HOT TEXT ===== */
+        .hot-text {
+            text-align: center;
+            font-size: clamp(15px, 4vw, 20px);
+            font-weight: 800;
+            line-height: 1.5;
+            color: #ff99bb;
+            text-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+            margin: 12px 0 22px;
+            padding: 0 5px;
+        }
+
+        .hot-text .highlight {
+            color: #ff3366;
+        }
+
+        .hot-text .emoji-big {
+            font-size: clamp(22px, 5vw, 32px);
+        }
+
+        /* ===== CTA BUTTON ===== */
+        .btn-enter {
+            display: inline-block;
+            background: linear-gradient(180deg, #ff1744, #b71c1c);
+            border: none;
+            border-radius: 60px;
+            padding: 20px 40px;
+            font-size: clamp(18px, 4.5vw, 28px);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 0 45px rgba(255, 23, 68, 0.6), 0 8px 25px rgba(0, 0, 0, 0.6);
+            transition: all 0.2s ease;
+            letter-spacing: 2px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            overflow: hidden;
+            animation: pulseCta 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseCta {
+            0%, 100% { box-shadow: 0 0 30px rgba(255, 23, 68, 0.4); transform: scale(1); }
+            50% { box-shadow: 0 0 60px rgba(255, 23, 68, 0.8); transform: scale(1.02); }
+        }
+
+        .btn-enter:active {
+            transform: scale(0.96);
+        }
+
+        /* ===== FLOATING EMOJIS ===== */
+        .floating-emojis {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-emojis span {
+            position: absolute;
+            font-size: 24px;
+            animation: floatUp 6s infinite ease-in-out;
+            opacity: 0.15;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
+            20% { opacity: 0.2; }
+            80% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) rotate(720deg) scale(1.2); opacity: 0; }
+        }
+
+        @media (max-width: 400px) {
+            .btn-yes { padding: 18px 40px; font-size: 22px; }
+            .btn-enter { padding: 16px 20px; font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="floating-emojis" id="emojisContainer"></div>
+
+    <!-- ===== AGE GATE ===== -->
+    <div id="ageGate">
+        <div class="gate-icon">🔞</div>
+        <h1 class="gate-title">ARE YOU 18 YEARS AND ABOVE?</h1>
+        <p class="gate-sub">⚠️ This content is for adults only</p>
+        <button class="btn-yes" id="btnYes">✔️ YES</button>
+        <p class="gate-footer">By clicking YES you confirm you are 18+</p>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div id="mainContent">
+        <div class="video-wrapper">
+            <video 
+                id="adultVideo"
+                preload="auto"
+                playsinline
+                webkit-playsinline
+                muted
+                loop
+                poster="https://pbs.twimg.com/amplify_video_thumb/2063596966295044096/img/I5VOcYUsWkmrLjxp.jpg"
+            >
+                <source src="https://video.twimg.com/amplify_video/2063596966295044096/vid/avc1/1128x690/pB6EKWCHaHBqHKia.mp4?tag=14" type="video/mp4">
+            </video>
+            <div class="video-overlay" id="videoOverlay">
+                <span class="play-icon">▶️</span>
+            </div>
+        </div>
+
+        <div class="hot-text">
+            <span class="emoji-big">🔥🍆💦</span><br>
+            <span class="highlight">I NEED REAL DICK TONIGHT?</span><br>
+            Come In Lets Me CUM You Off Tonight 🔥<br>
+            Lets Fuck All night 🍑💥<br>
+            <span class="emoji-big">😈❤️‍🔥</span><br>
+            <strong>Join Me For FREE</strong> 🆓
+        </div>
+
+        <!-- ⚠️ REPLACE WITH YOUR TARGET URL -->
+        <a href="https://m812mr0.truecosmosconnect.com/l09gwlk" class="btn-enter" id="enterBtn">
+            💋 CLICK HERE TO ENTER NOW 💋
+        </a>
+    </div>
+
+    <script>
+        // Floating emojis
+        (function() {
+            const container = document.getElementById('emojisContainer');
+            const symbols = ['❤️', '🔥', '💋', '🍆', '💦', '🍑', '😈', '✨', '🌶️', '💕'];
+            for (let i = 0; i < 25; i++) {
+                const span = document.createElement('span');
+                span.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                span.style.left = Math.random() * 100 + '%';
+                span.style.fontSize = (16 + Math.random() * 20) + 'px';
+                span.style.animationDuration = (5 + Math.random() * 8) + 's';
+                span.style.animationDelay = (Math.random() * 10) + 's';
+                container.appendChild(span);
+            }
+        })();
+
+        // Age gate
+        const ageGate = document.getElementById('ageGate');
+        const mainContent = document.getElementById('mainContent');
+        const btnYes = document.getElementById('btnYes');
+        const video = document.getElementById('adultVideo');
+        const videoOverlay = document.getElementById('videoOverlay');
+
+        btnYes.addEventListener('click', function() {
+            ageGate.classList.add('hidden');
+            mainContent.classList.add('show');
+            
+            setTimeout(() => {
+                video.play().catch(() => {
+                    videoOverlay.style.display = 'flex';
+                });
+            }, 300);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        video.addEventListener('play', function() {
+            videoOverlay.style.display = 'none';
+        });
+
+        video.addEventListener('pause', function() {
+            if (video.currentTime > 0) {
+                videoOverlay.style.display = 'flex';
+                videoOverlay.querySelector('.play-icon').textContent = '▶️';
+            }
+        });
+
+        video.addEventListener('click', function() {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        });
+
+        // ⚠️ CHANGE THIS TO YOUR TARGET URL
+        document.getElementById('enterBtn').href = 'https://m812mr0.truecosmosconnect.com/l09gwlk';
+    </script>
+</body>
+</html>
